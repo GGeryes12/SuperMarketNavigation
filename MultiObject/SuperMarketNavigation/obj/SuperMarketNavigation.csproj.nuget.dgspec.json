@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Jeryes\\Desktop\\MultiObject\\SuperMarketNavigation\\SuperMarketNavigation.csproj": {}
+    "C:\\Users\\Jeryes\\github\\SuperMarketNavigation\\MultiObject\\SuperMarketNavigation\\SuperMarketNavigation.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Jeryes\\Desktop\\MultiObject\\SuperMarketNavigation\\SuperMarketNavigation.csproj": {
+    "C:\\Users\\Jeryes\\github\\SuperMarketNavigation\\MultiObject\\SuperMarketNavigation\\SuperMarketNavigation.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Jeryes\\Desktop\\MultiObject\\SuperMarketNavigation\\SuperMarketNavigation.csproj",
+        "projectUniqueName": "C:\\Users\\Jeryes\\github\\SuperMarketNavigation\\MultiObject\\SuperMarketNavigation\\SuperMarketNavigation.csproj",
         "projectName": "SuperMarketNavigation",
-        "projectPath": "C:\\Users\\Jeryes\\Desktop\\MultiObject\\SuperMarketNavigation\\SuperMarketNavigation.csproj",
+        "projectPath": "C:\\Users\\Jeryes\\github\\SuperMarketNavigation\\MultiObject\\SuperMarketNavigation\\SuperMarketNavigation.csproj",
         "packagesPath": "C:\\Users\\Jeryes\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Jeryes\\Desktop\\MultiObject\\SuperMarketNavigation\\obj\\",
+        "outputPath": "C:\\Users\\Jeryes\\github\\SuperMarketNavigation\\MultiObject\\SuperMarketNavigation\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Jeryes\\AppData\\Roaming\\NuGet\\NuGet.Config"

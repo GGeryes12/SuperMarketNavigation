@@ -560,11 +560,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Jeryes\\Desktop\\MultiObject\\SuperMarketNavigation\\SuperMarketNavigation.csproj",
+      "projectUniqueName": "c:\\Users\\Jeryes\\github\\SuperMarketNavigation\\MultiObject\\SuperMarketNavigation\\SuperMarketNavigation.csproj",
       "projectName": "SuperMarketNavigation",
-      "projectPath": "C:\\Users\\Jeryes\\Desktop\\MultiObject\\SuperMarketNavigation\\SuperMarketNavigation.csproj",
+      "projectPath": "c:\\Users\\Jeryes\\github\\SuperMarketNavigation\\MultiObject\\SuperMarketNavigation\\SuperMarketNavigation.csproj",
       "packagesPath": "C:\\Users\\Jeryes\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Jeryes\\Desktop\\MultiObject\\SuperMarketNavigation\\obj\\",
+      "outputPath": "c:\\Users\\Jeryes\\github\\SuperMarketNavigation\\MultiObject\\SuperMarketNavigation\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\Jeryes\\AppData\\Roaming\\NuGet\\NuGet.Config"

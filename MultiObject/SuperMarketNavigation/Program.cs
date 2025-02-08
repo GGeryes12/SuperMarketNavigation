@@ -33,10 +33,12 @@ namespace SuperMarketNavigation
             string rawDataFilePath = Path.Combine(runFolderPath, "raw_data.csv");
 
             // Step 1: Initialize market layout
-            MarketLayout market = new MarketLayout(6,6,0.2);
+            //MarketLayout market = new MarketLayout(12,12,0.3);
+            MarketLayout market = MarketLayout.LoadLayout(@"C:\Users\Jeryes\github\SuperMarketNavigation\MultiObject\SuperMarketNavigation\bin\Debug\net9.0\Run_20250208_175147\market_layout.json");
+            market.SaveLayout(Path.Combine(runFolderPath, "market_layout.json"));
             market.VisualizeMarket(runFolderPath);
             int populationSize = 500;
-            int generations = 100;
+            int generations = 150;
             Stopwatch stopWatch = new Stopwatch();
 
             // Run NSGA-II
@@ -54,7 +56,7 @@ namespace SuperMarketNavigation
             Console.WriteLine("NSGA-II Elapsed time = " + duration);
 
             // Visualize NSGA-II results
-            VisualizeResults(nsga2.population);
+            //VisualizeResults(nsga2.population);
             Console.WriteLine("\nNSGA-II Optimization complete! Results saved.");
 
             // Run NSGA-III
@@ -72,10 +74,10 @@ namespace SuperMarketNavigation
             Console.WriteLine("NSGA-III Elapsed time = " + duration);
 
             // Visualize NSGA-III results
-            VisualizeResults(nsga3.population);
+            //VisualizeResults(nsga3.population);
             Console.WriteLine("\nNSGA-III Optimization complete! Results saved.");
 
-            try
+            /*try
             {
                 // Create the video for NSGA-III
                 VideoCreator.CreateVideoFromImages(ffmpegPath, nsga3FolderPath, nsga3OutputVideo, 10);
@@ -84,7 +86,7 @@ namespace SuperMarketNavigation
             catch (Exception ex)
             {
                 Console.WriteLine($"Error: {ex.Message}");
-            }
+            }*/
         }
 
 

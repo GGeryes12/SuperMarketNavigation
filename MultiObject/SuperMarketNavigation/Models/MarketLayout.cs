@@ -1,14 +1,26 @@
 using System.Dynamic;
 using System.Security.Cryptography.X509Certificates;
 using ScottPlot;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.Json;
 
 namespace SuperMarketNavigation.Models
 {
     public class MarketLayout
     {
+        public char[,] IsleMatrix;
+        private int rows;
+        private int cols;
+
         public MarketLayout(int rows, int cols, double ratio)
         {
+            this.rows = rows;
+            this.cols = cols;
             IsleMatrix = new char[rows, cols];
+            Random rand = new Random();
             List<char> characters = new List<char>();
 
             // Add characters from 'A' to 'Z'
@@ -17,157 +29,77 @@ namespace SuperMarketNavigation.Models
                 characters.Add(c);
             }
 
-            // Shuffle the characters
-            Random rand = new Random();
-            for (int i = characters.Count - 1; i > 0; i--)
+            // Shuffle the characters list
+            characters = characters.OrderBy(_ => rand.Next()).ToList();
+
+            // Track used positions to prevent overwriting
+            HashSet<(int, int)> usedPositions = new HashSet<(int, int)>();
+
+            // Randomly place letters in the grid
+            foreach (char c in characters)
             {
-                int j = rand.Next(i + 1);
-                char temp = characters[i];
-                characters[i] = characters[j];
-                characters[j] = temp;
+                int x, y;
+                do
+                {
+                    x = rand.Next(rows);
+                    y = rand.Next(cols);
+                } while (usedPositions.Contains((x, y)));
+
+                IsleMatrix[x, y] = c;
+                usedPositions.Add((x, y));
             }
 
-            // Place characters in the matrix
-            int index = 0;
+            // Determine the remaining empty cells
+            List<(int, int)> emptyCells = new List<(int, int)>();
             for (int i = 0; i < rows; i++)
             {
                 for (int j = 0; j < cols; j++)
                 {
-                    if (index < characters.Count)
+                    if (IsleMatrix[i, j] == '\0')
                     {
-                        IsleMatrix[i,j] = characters[index++];
-                    }
-                    else
-                    {
-                        IsleMatrix[i,j] = ' ';
+                        emptyCells.Add((i, j));
                     }
                 }
             }
 
-            // Fill the remaining cells with 'X's and '0's according to the ratio
-            int totalCells = rows * cols;
-            int remainingCells = totalCells - characters.Count;
-            int xCount = (int)(remainingCells * ratio);
-            int zeroCount = remainingCells - xCount;
+            // Shuffle empty cells
+            emptyCells = emptyCells.OrderBy(_ => rand.Next()).ToList();
 
-            List<char> fillers = new List<char>();
-            for (int i = 0; i < xCount; i++) fillers.Add('X');
-            for (int i = 0; i < zeroCount; i++) fillers.Add('0');
+            // Determine the number of 'x' and '0' based on ratio
+            int xCount = (int)(emptyCells.Count * ratio);
+            int zeroCount = emptyCells.Count - xCount;
 
-            // Shuffle the fillers
-            for (int i = fillers.Count - 1; i > 0; i--)
+            // Assign 'x' and '0' in the remaining spaces
+            for (int i = 0; i < emptyCells.Count; i++)
             {
-                int j = rand.Next(i + 1);
-                char temp = fillers[i];
-                fillers[i] = fillers[j];
-                fillers[j] = temp;
+                (int x, int y) = emptyCells[i];
+                IsleMatrix[x, y] = i < xCount ? 'x' : '0';
             }
 
-            // Place fillers in the matrix
-            index = 0;
-            for (int i = 0; i < rows; i++)
+            // Randomly place start '<' and exit '>' in existing '0' locations
+            List<(int, int)> zeroCells = emptyCells.Where(p => IsleMatrix[p.Item1, p.Item2] == '0').ToList();
+            if (zeroCells.Count >= 2)
             {
-                for (int j = 0; j < cols; j++)
-                {
-                    if (IsleMatrix[i,j] == ' ')
-                    {
-                        IsleMatrix[i,j] = fillers[index++];
-                    }
-                }
-            }
-
-            // Insert '<' and '>' by swapping two '0's
-            bool swapped = false;
-            for (int i = 0; i < rows && !swapped; i++)
-            {
-                for (int j = 0; j < cols && !swapped; j++)
-                {
-                    if (IsleMatrix[i, j] == '0')
-                    {
-                        IsleMatrix[i, j] = '<';
-                        swapped = true;
-                    }
-                }
-            }
-
-            swapped = false;
-            for (int i = 0; i < rows && !swapped; i++)
-            {
-                for (int j = 0; j < cols && !swapped; j++)
-                {
-                    if (IsleMatrix[i, j] == '0')
-                    {
-                        IsleMatrix[i, j] = '>';
-                        swapped = true;
-                    }
-                }
+                IsleMatrix[zeroCells[0].Item1, zeroCells[0].Item2] = '<';
+                IsleMatrix[zeroCells[1].Item1, zeroCells[1].Item2] = '>';
             }
         }
-        /*
-                public char[,] IsleMatrix = {
-                {'<','0','G','0','0'},
-                {'0','C','x','H','0'},
-                {'F','0','B','0','E'},
-                {'0','x','0','x','0'},
-                {'A','I','D','0','>'}
-            };
-                public Dictionary<char, int> heatSensitivity = new Dictionary<char, int>(){
-                        {'A',-1},
-                        {'B',-1},
-                        {'C',-1},
-                        {'D',-1},
-                        {'E',-1},
-                        {'F',0},
-                        {'G',0},
-                        {'H',0},
-                        {'I',0},
-                        {'<',-1},
-                        {'>',-1}
-                    };
-                    */
-        /*  public char[,] IsleMatrix = {
-      {'<','0','G','0','0','0','0','H','0','0'},
-      {'0','C','x','H','0','E','0','x','I','0'},
-      {'F','0','B','0','E','x','G','0','B','0'},
-      {'0','x','0','x','0','I','0','x','0','0'},
-      {'A','I','D','0','0','0','C','0','D','0'},
-      {'0','0','0','x','0','0','x','0','E','0'},
-      {'J','K','x','0','0','F','0','0','0','0'},
-      {'0','x','0','x','0','L','x','H','0','M'},
-      {'N','O','P','0','x','0','Q','0','0','0'},
-      {'0','0','R','S','T','U','V','W','X','>'}
-  };*/
-        public char[,] IsleMatrix; /*= {
-        {'<','0','G','0','0','0','0','H','x','x','0','F','0','0','0'},
-        {'0','C','x','H','0','E','0','x','I','0','A','x','x','B','0'},
-        {'F','0','M','0','x','x','G','0','P','0','0','D','0','0','I'},
-        {'0','x','0','x','0','I','0','x','0','0','C','x','E','x','0'},
-        {'0','I','D','0','0','0','C','0','D','0','x','x','x','x','x'},
-        {'0','0','0','x','0','0','x','0','E','0','0','0','K','0','0'},
-        {'J','K','x','0','0','F','0','0','0','0','0','0','0','G','x'},
-        {'0','x','0','x','0','L','x','0','0','M','N','O','0','0','P'},
-        {'N','O','P','0','x','0','Q','0','0','0','0','0','x','0','0'},
-        {'0','0','0','0','0','0','0','0','0','0','x','x','x','x','x'},
-        {'0','0','R','S','T','U','V','W','X','0','0','0','D','F','0'},
-        {'0','x','0','x','x','x','0','0','0','0','0','G','0','C','0'},
-        {'x','x','x','x','0','0','0','0','0','0','0','x','x','x','0'},
-        {'0','B','0','0','x','0','J','0','K','0','L','M','x','O','0'},
-        {'0','0','0','0','0','0','0','0','0','0','0','0','x','>','x'}
-    };*/
+
         public Dictionary<char, int> heatSensitivity = new Dictionary<char, int>()
-{
-    {'A', -1}, {'B', -1}, {'C', -1}, {'D', -1}, {'E', -1},
-    {'F',  0}, {'G',  0}, {'H',  0}, {'I',  0}, {'J',  0},
-    {'K', -1}, {'L',  0}, {'M',  0}, {'N', -1}, {'O', -1},
-    {'P', -1}, {'Q',  0}, {'R', -1}, {'S', -1}, {'T',  0},
-    {'U',  0}, {'V', -1}, {'W',  0}, {'X',  0}, {'<', -1},
-    {'>', -1}
-};
+        {
+            {'A', -1}, {'B', -1}, {'C', -1}, {'D', -1}, {'E', -1},
+            {'F', -1}, {'G', -1}, {'H', -1}, {'I', -1}, {'J', -1},
+            {'K', -1}, {'L',  0}, {'M',  0}, {'N', -1}, {'O', -1},
+            {'P', -1}, {'Q',  0}, {'R', -1}, {'S', -1}, {'T',  0},
+            {'U',  0}, {'V', -1}, {'W',  0}, {'X',  0}, {'Y',  0},
+            {'Z', -1}, {'<',  -1}, {'>', -1}
+        };
+
         public void VisualizeMarket(string runFolderPath)
         {
             ScottPlot.Plot myPlot = new();
 
-            int rows = IsleMatrix.GetLength(dimension: 0);
+            int rows = IsleMatrix.GetLength(0);
             int cols = IsleMatrix.GetLength(1);
 
             // Define colors for different aisle types
@@ -194,7 +126,7 @@ namespace SuperMarketNavigation.Models
                             rectangle.FillStyle.Color = emptyColor;
                             rectangle.LineStyle.Color = Colors.Black;
                             break;
-                        case 'x': // Hot aisle
+                        case 'x': // Hot aisle (🔥 should be RED)
                             rectangle.FillStyle.Color = hotColor;
                             rectangle.LineStyle.Color = Colors.DarkRed;
                             break;
@@ -216,6 +148,12 @@ namespace SuperMarketNavigation.Models
                             rectangle.LineStyle.Color = Colors.DarkGreen;
                             break;
                     }
+
+                    // Add text inside the rectangle
+                    var text = myPlot.Add.Text(cell.ToString(), j + 0.5, -i + 0.5);
+                    text.Alignment = Alignment.MiddleCenter;
+                    text.LabelFontSize = 10;
+                    text.LabelFontColor = Colors.Black;
                 }
             }
 
@@ -226,9 +164,71 @@ namespace SuperMarketNavigation.Models
             myPlot.Axes.AutoScale();
 
             // Save the plot as an image
-            myPlot.SavePng(runFolderPath+"/market_layout.png", 800, 600);
+            string filePath = System.IO.Path.Combine(runFolderPath, "market_layout.png");
+            myPlot.SavePng(filePath, 800, 600);
 
-            Console.WriteLine("Market layout saved as 'market_layout.png'.");
+            Console.WriteLine($"Market layout saved as '{filePath}'.");
+        }
+
+        public void SaveLayout(string filePath)
+        {
+            var data = new
+            {
+                Rows = rows,
+                Cols = cols,
+                IsleMatrix = IsleMatrix.Cast<char>().ToArray() // Flatten for serialization
+            };
+
+            string json = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(filePath, json);
+            Console.WriteLine($"Market layout saved to {filePath}");
+        }
+
+        public static MarketLayout LoadLayout(string filePath)
+        {
+            if (!File.Exists(filePath))
+            {
+                Console.WriteLine("Error: Layout file not found!");
+                return null;
+            }
+
+            string json = File.ReadAllText(filePath);
+            var data = JsonSerializer.Deserialize<MarketLayoutData>(json);
+
+            MarketLayout market = new MarketLayout(data.Rows, data.Cols, 0); // Use existing dimensions
+            market.IsleMatrix = new char[data.Rows, data.Cols];
+
+            // Restore the IsleMatrix from the flattened array
+            for (int i = 0; i < data.Rows; i++)
+            {
+                for (int j = 0; j < data.Cols; j++)
+                {
+                    market.IsleMatrix[i, j] = data.IsleMatrix[i * data.Cols + j];
+                }
+            }
+
+            Console.WriteLine($"Market layout loaded from {filePath}");
+            return market;
+        }
+
+        // Helper class for serialization
+        private class MarketLayoutData
+        {
+            public int Rows { get; set; }
+            public int Cols { get; set; }
+            public char[] IsleMatrix { get; set; }
+        }
+
+        public void PrintMarket()
+        {
+            for (int i = 0; i < IsleMatrix.GetLength(0); i++)
+            {
+                for (int j = 0; j < IsleMatrix.GetLength(1); j++)
+                {
+                    Console.Write(IsleMatrix[i, j] + " ");
+                }
+                Console.WriteLine();
+            }
         }
     }
 }

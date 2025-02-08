@@ -38,10 +38,11 @@ namespace SuperMarketNavigation.Algorithms
                     List<Individual> offspring = PerformCrossoverMutation();
                     population = SelectNextGeneration(offspring);
                     Console.WriteLine($"Generation {i + 1} completed, Population Size: {population.Individuals.Count}");
-                    VisualizeFullPopulation(population, i, runPath);
+                    //VisualizeFullPopulation(population, i, runPath);
                     SaveRawData(writer, i);
                     generationPerformance.TrackPerformance(population);
                 }
+                VisualizeFullPopulation(population, generations, runPath);
             }
             generationPerformance.PlotPerformanceOverGenerations(Path.Combine(runPath, "POG_"));
         }
@@ -82,8 +83,8 @@ namespace SuperMarketNavigation.Algorithms
                 color: ScottPlot.Colors.Red
             );
 
-            plt.Axes.SetLimitsX(50, 150);
-            plt.Axes.SetLimitsY(500, 3000);
+            //plt.Axes.SetLimitsX(50, 150);
+            //plt.Axes.SetLimitsY(500, 3000);
             plt.Title($"Population Spread - Generation {generation}");
             plt.XLabel("Walking Time");
             plt.YLabel("Exposure Time");
