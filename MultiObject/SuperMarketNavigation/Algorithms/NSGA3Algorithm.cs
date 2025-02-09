@@ -6,15 +6,23 @@ namespace SuperMarketNavigation.Algorithms
     public class NSGA3Algorithm : GeneticAlgorithm
     {
         private List<double[]> referencePoints;
-        private string rawDataFilePath;
 
-        public NSGA3Algorithm(MarketLayout market, int popSize, double mutationRate, string runPath, string rawDataFilePath) 
+        public NSGA3Algorithm(MarketLayout market, int popSize, double mutationRate, string runPath)
             : base(market, popSize, mutationRate, runPath)
         {
             referencePoints = GenerateReferencePoints(2, 12); // Example: 2 objectives, 12 divisions
-            this.rawDataFilePath = rawDataFilePath;
         }
-
+        
+        public override void Run(int generations)
+        {
+            for (int gen = 0; gen < generations; gen++)
+            {
+                EvaluatePopulation();
+                SortPopulation();
+                List<Individual> offspring = PerformCrossoverMutation();
+                population = SelectNextGeneration(offspring);
+            }
+        }
         protected override void SortPopulation()
         {
             // NSGA-III sorting implementation here

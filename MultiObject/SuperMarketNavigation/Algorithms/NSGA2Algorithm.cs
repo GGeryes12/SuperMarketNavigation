@@ -5,12 +5,21 @@ namespace SuperMarketNavigation.Algorithms
     public class NSGA2Algorithm : GeneticAlgorithm
     {
         private string rawDataFilePath;
-        public NSGA2Algorithm(MarketLayout market, int popSize, double mutationRate, string runPath, string rawDataFilePath) 
-            : base(market, popSize, mutationRate, runPath) 
-        {
-            this.rawDataFilePath = rawDataFilePath;
-        }
+     public NSGA2Algorithm(MarketLayout market, int popSize, double mutationRate, string runPath)
+        : base(market, popSize, mutationRate, runPath)
+    {
+    }
 
+    public override void Run(int generations)
+    {
+        for (int gen = 0; gen < generations; gen++)
+        {
+            EvaluatePopulation();
+            SortPopulation();
+            List<Individual> offspring = PerformCrossoverMutation();
+            population = SelectNextGeneration(offspring);
+        }
+    }
         protected override void SortPopulation()
         {
             var fronts = new List<List<Individual>>();

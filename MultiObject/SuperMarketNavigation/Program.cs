@@ -11,7 +11,7 @@ namespace SuperMarketNavigation
 {
     class Program
     {
-        
+
         static void Main(string[] args)
         {
             // Paths
@@ -38,44 +38,14 @@ namespace SuperMarketNavigation
             market.SaveLayout(Path.Combine(runFolderPath, "market_layout.json"));
             market.VisualizeMarket(runFolderPath);
             int populationSize = 500;
-            int generations = 150;
-            Stopwatch stopWatch = new Stopwatch();
-
-            // Run NSGA-II
-            string nsga2FolderPath = Path.Combine(runFolderPath, "NSGA-II");
-            Directory.CreateDirectory(nsga2FolderPath);
-            string nsga2RawDataFilePath = Path.Combine(nsga2FolderPath, "raw_data.csv");
-            string nsga2OutputVideo = Path.Combine(nsga2FolderPath, "output.mp4");
-
-            stopWatch.Start();
-            NSGA2Algorithm nsga2 = new NSGA2Algorithm(market, populationSize, 0.3, nsga2FolderPath, nsga2RawDataFilePath);
-            Console.WriteLine("Running NSGA-II optimization...");
-            nsga2.Run(generations);
-            stopWatch.Stop();
-            long duration = stopWatch.ElapsedMilliseconds;
-            Console.WriteLine("NSGA-II Elapsed time = " + duration);
-
-            // Visualize NSGA-II results
-            //VisualizeResults(nsga2.population);
-            Console.WriteLine("\nNSGA-II Optimization complete! Results saved.");
-
-            // Run NSGA-III
-            string nsga3FolderPath = Path.Combine(runFolderPath, "NSGA-III");
-            Directory.CreateDirectory(nsga3FolderPath);
-            string nsga3RawDataFilePath = Path.Combine(nsga3FolderPath, "raw_data.csv");
-            string nsga3OutputVideo = Path.Combine(nsga3FolderPath, "output.mp4");
-
-            stopWatch.Restart();
-            NSGA3Algorithm nsga3 = new NSGA3Algorithm(market, populationSize, 0.3, nsga3FolderPath, nsga3RawDataFilePath);
-            Console.WriteLine("Running NSGA-III optimization...");
-            nsga3.Run(generations);
-            stopWatch.Stop();
-            duration = stopWatch.ElapsedMilliseconds;
-            Console.WriteLine("NSGA-III Elapsed time = " + duration);
-
-            // Visualize NSGA-III results
-            //VisualizeResults(nsga3.population);
-            Console.WriteLine("\nNSGA-III Optimization complete! Results saved.");
+            int generations = 80;
+            int itirations = 10;
+            for (int i = 0; i < itirations; i++)
+            {
+                OptimizationRunner.RunAlgorithm<NSGA2Algorithm>(Path.Combine(runFolderPath,$"Run{i+1}"), market, populationSize, 0.3, generations);
+                OptimizationRunner.RunAlgorithm<NSGA3Algorithm>(Path.Combine(runFolderPath,$"Run{i+1}"), market, populationSize, 0.3, generations);
+                OptimizationRunner.RunAlgorithm<SPEA2Algorithm>(Path.Combine(runFolderPath,$"Run{i+1}"), market, populationSize, 0.5, generations);
+            }
 
             /*try
             {
@@ -107,30 +77,30 @@ namespace SuperMarketNavigation
         static void TestBruteForce()
         {
             // Create a new plot
-                        var plt = new Plot();
+            var plt = new Plot();
 
-                        MarketLayout market = new MarketLayout(8,8,0.5);
-                        Models.Population population = new Models.Population();
-                        population.Initialize(5000,market);
+            MarketLayout market = new MarketLayout(8, 8, 0.5);
+            Models.Population population = new Models.Population();
+            population.Initialize(5000, market);
 
-                        //var results = population.EvaluatePopulation();
-                        double[] xs = new double[population.Individuals.Count];
-                        double[] ys = new double[population.Individuals.Count];
-                        for(int i = 0; i < population.Individuals.Count; i ++)
-                        {
-                            double[] res = ObjectiveFunction.EvaluateIndiv(population.Individuals[i], market);
-                            //plt.Add.ScatterPoints(new double[] { res[0] }, new double[] { res[1] });
-                            xs[i] = res[0];
-                            ys[i] = res[1];
-                        }
-                        plt.Add.ScatterPoints(xs, ys);
-                                plt.Title("Population Evaluation");
-                    plt.XLabel("Walking Time");
-                    plt.YLabel("Heat-Sensitive Exposure Time");
+            //var results = population.EvaluatePopulation();
+            double[] xs = new double[population.Individuals.Count];
+            double[] ys = new double[population.Individuals.Count];
+            for (int i = 0; i < population.Individuals.Count; i++)
+            {
+                double[] res = ObjectiveFunction.EvaluateIndiv(population.Individuals[i], market);
+                //plt.Add.ScatterPoints(new double[] { res[0] }, new double[] { res[1] });
+                xs[i] = res[0];
+                ys[i] = res[1];
+            }
+            plt.Add.ScatterPoints(xs, ys);
+            plt.Title("Population Evaluation");
+            plt.XLabel("Walking Time");
+            plt.YLabel("Heat-Sensitive Exposure Time");
 
-                    // Save the plot to a file
-                    plt.SaveBmp("PopulationEvaluation.png",800,600);
-                    Console.WriteLine("Graph saved as 'PopulationEvaluation.png'");
+            // Save the plot to a file
+            plt.SaveBmp("PopulationEvaluation.png", 800, 600);
+            Console.WriteLine("Graph saved as 'PopulationEvaluation.png'");
         }
         static void TestCrossover(MarketLayout market)
         {

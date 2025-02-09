@@ -11,7 +11,7 @@ namespace SuperMarketNavigation.Algorithms
         private List<double[]> weightVectors;
         private int T;
 
-        public MOEADAlgorithm(MarketLayout market, int popSize, double mutationRate, string runPath) 
+        public MOEADAlgorithm(MarketLayout market, int popSize, double mutationRate, string runPath)
             : base(market, popSize, mutationRate, runPath)
         {
             weightVectors = GenerateWeightVectors(popSize);
@@ -21,12 +21,14 @@ namespace SuperMarketNavigation.Algorithms
         private List<double[]> GenerateWeightVectors(int numVectors)
         {
             List<double[]> vectors = new List<double[]>();
-            for (int i = 0; i <= numVectors; i++)
+
+            for (int i = 0; i < numVectors; i++) // Ensure correct number of vectors
             {
-                double w1 = (double)i / numVectors;
+                double w1 = (double)i / (numVectors - 1);
                 double w2 = 1 - w1;
                 vectors.Add(new double[] { w1, w2 });
             }
+
             return vectors;
         }
 
@@ -35,10 +37,12 @@ namespace SuperMarketNavigation.Algorithms
             double[] target = weightVectors[index];
             return weightVectors.Select((w, i) => new { Distance = Math.Sqrt(Math.Pow(w[0] - target[0], 2) + Math.Pow(w[1] - target[1], 2)), Index = i })
                                 .OrderBy(n => n.Distance)
+                                .Where(n => n.Index < population.Individuals.Count) // Ensure valid index
                                 .Take(T)
                                 .Select(n => n.Index)
                                 .ToList();
         }
+
 
         private double[] ComputeIdealPoint()
         {
@@ -67,6 +71,12 @@ namespace SuperMarketNavigation.Algorithms
 
         private void UpdatePopulation(Individual child, int subproblemIdx)
         {
+            if (subproblemIdx >= population.Individuals.Count)
+            {
+                Console.WriteLine($"Warning: Subproblem index {subproblemIdx} out of range. Skipping update.");
+                return; // Avoid crashing due to an invalid index
+            }
+
             double[] lambda = weightVectors[subproblemIdx];
             double[] z_star = ComputeIdealPoint();
             double childFitness = TchebycheffFunction(child, lambda, z_star);
@@ -74,8 +84,15 @@ namespace SuperMarketNavigation.Algorithms
 
             foreach (int neighborIdx in neighbors)
             {
+                if (neighborIdx >= population.Individuals.Count)
+                {
+                    Console.WriteLine($"Warning: Neighbor index {neighborIdx} out of range. Skipping update.");
+                    continue; // Prevent out-of-range access
+                }
+
                 Individual neighbor = population.Individuals[neighborIdx];
                 double neighborFitness = TchebycheffFunction(neighbor, lambda, z_star);
+
                 if (childFitness < neighborFitness)
                 {
                     population.Individuals[neighborIdx] = child;
@@ -83,33 +100,35 @@ namespace SuperMarketNavigation.Algorithms
             }
         }
 
-        /*public override void Run(int generations)
+        public override void Run(int generations)
         {
             for (int gen = 0; gen < generations; gen++)
             {
-                Console.WriteLine($"Generation {gen + 1}");
-                
                 double[] z_star = ComputeIdealPoint();
-                List<Individual> offspring = new List<Individual>();
+                List<Individual> offspring = PerformCrossoverMutation();
 
-                for (int i = 0; i < population.Individuals.Count; i++)
+                // Ensure uniqueness of offspring
+                HashSet<string> seenSolutions = new HashSet<string>(population.Individuals.Select(ind => ind.GetSolutionKey()));
+                List<Individual> uniqueOffspring = offspring.Where(child => seenSolutions.Add(child.GetSolutionKey())).ToList();
+
+                foreach (var child in offspring)
                 {
-                    Individual parent1 = SelectParentFromNeighborhood(i);
-                    Individual parent2 = SelectParentFromNeighborhood(i);
-                    Individual child = GeneticOperators.Order1Crossover(parent1, parent2, market);
-                    GeneticOperators.Mutate(child, mutationRate);
-                    ObjectiveFunction.EvaluateIndiv(child, market);
-                    offspring.Add(child);
+                    string childKey = child.GetSolutionKey();
+                    if (!seenSolutions.Contains(childKey))
+                    {
+                        seenSolutions.Add(childKey);
+                        uniqueOffspring.Add(child);
+                    }
                 }
-                
-                for (int i = 0; i < population.Individuals.Count; i++)
+
+                int minCount = Math.Min(population.Individuals.Count, uniqueOffspring.Count); // Ensure valid index range
+
+                for (int i = 0; i < minCount; i++)
                 {
-                    UpdatePopulation(offspring[i], i);
+                    UpdatePopulation(uniqueOffspring[i], i);
                 }
-                
-                Console.WriteLine($"Generation {gen + 1} completed");
             }
-        }*/
+        }
 
         protected override void SortPopulation()
         {

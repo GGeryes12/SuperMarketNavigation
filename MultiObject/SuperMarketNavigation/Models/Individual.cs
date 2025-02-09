@@ -68,7 +68,7 @@ namespace SuperMarketNavigation.Models
         }
         public string GetSolutionKey()
         {
-            return string.Join(",", items.Select(i => i.isle)) + $"_{wp}";
+            return string.Join(",", items.Select(item => item.isle)) + $"|{wp}";
         }
     }
     public class Item

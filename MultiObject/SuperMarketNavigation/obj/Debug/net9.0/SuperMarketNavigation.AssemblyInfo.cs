@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SuperMarketNavigation")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3e998e73886b9afdae08ecb30ef4a8539f31a4e4")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+02eeaa4c27c3fc528a3a9518cbbbddcc2d47f965")]
 [assembly: System.Reflection.AssemblyProductAttribute("SuperMarketNavigation")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SuperMarketNavigation")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

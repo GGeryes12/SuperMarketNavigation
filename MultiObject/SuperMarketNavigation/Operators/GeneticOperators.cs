@@ -101,6 +101,10 @@ namespace SuperMarketNavigation.Operators
                     individual.items[index2] = temp;
                 }
             }
+            if (mutationRate > 0.4 && random.NextDouble() < mutationRate/2) // Introduce occasional large changes
+            {
+                Array.Reverse(individual.items); // Flip order as a drastic mutation
+            }
         }
     }
 }
